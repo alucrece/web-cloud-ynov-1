@@ -5,6 +5,8 @@ export interface Post {
   id: string;
   title: string;
   content: string;
+  rating: number;
+  image: string;
   authorId: string;
   authorName: string;
   createdAt: any;
