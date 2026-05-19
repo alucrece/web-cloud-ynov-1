@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Pressable, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { getPostById } from '../../firebase/get_single_post';
@@ -8,12 +8,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'react-native';
 import { markReviewAsHelpful } from '../../firebase/update_helpful';
 import { auth } from '../../firebaseConfig';
+import { addComment } from '../../firebase/add_comment';
+import { subscribeToComments, ReviewComment } from '../../firebase/get_comment';
 
 export default function ReviewDetailPage() {
   const { slug } = useLocalSearchParams();
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [comments, setComments] = useState<ReviewComment[]>([]);
+  const [commentText, setCommentText] = useState('');
 
   const handleHelpful = async () => {
     if (!post || !auth.currentUser) return;
@@ -41,12 +46,37 @@ export default function ReviewDetailPage() {
     }
   };
 
+  const handleAddComment = async () => {
+    if (!commentText.trim() || !auth.currentUser || !post) return;
+
+    try {
+      await addComment(
+        post.id,
+        auth.currentUser.uid,
+        auth.currentUser.displayName || 'Anonyme',
+        commentText
+      );
+
+      setCommentText('');
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     if (slug) {
       getPostById(slug as string)
         .then(setPost)
         .catch((err) => console.error(err))
         .finally(() => setLoading(false));
+
+       const unsubscribeComments = subscribeToComments(
+        slug as string,
+        setComments
+      );
+
+      return () => unsubscribeComments();
     }
   }, [slug]);
 
@@ -94,6 +124,30 @@ export default function ReviewDetailPage() {
             👍 Avis pertinent ({post.helpfulCount || 0})
           </Text>
         </Pressable>
+        <Text style={styles.commentsTitle}> Commentaires </Text>
+
+        <TextInput
+          style={styles.commentInput}
+          placeholder="Ajouter un commentaire..."
+          value={commentText}
+          onChangeText={setCommentText}
+        />
+        <Pressable style={styles.commentButton} onPress={handleAddComment}>
+          <Text style={styles.commentButtonText}> Envoyer </Text>
+        </Pressable>
+        {comments.map(comment => (
+          <View key={comment.id} style={styles.commentCard}>
+
+            <Text style={styles.commentAuthor}>
+              {comment.authorName}
+            </Text>
+
+            <Text style={styles.commentContent}>
+              {comment.content}
+            </Text>
+
+          </View>
+        ))}
       </View>
     </ScrollView>
   );
@@ -111,4 +165,11 @@ const styles = StyleSheet.create({
   rating: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   helpfulButton: { marginTop: 30, backgroundColor: Colors.primary, padding: 12, borderRadius: 8, alignItems: 'center' },
   helpfulText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  commentsTitle: { fontSize: 20, fontWeight: 'bold', marginTop: 40, marginBottom: 20 },
+  commentInput: { borderWidth: 1, borderColor: Colors.gray, borderRadius: 8, padding: 10, marginBottom: 10 },
+  commentButton: { backgroundColor: Colors.primary, padding: 12, borderRadius: 8, alignItems: 'center' },
+  commentButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  commentCard: { backgroundColor: Colors.gray, padding: 15, borderRadius: 8, marginBottom: 15 },
+  commentAuthor: { fontWeight: 'bold', marginBottom: 5 },
+  commentContent: { color: Colors.text },
 });
