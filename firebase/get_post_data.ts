@@ -11,6 +11,7 @@ export interface Post {
   authorName: string;
   createdAt: any;
   helpfulCount?: number; // Optional field for counting helpful votes
+  helpfulBy?: string[]; // Optional field for tracking which users marked as helpful
 }
 
 /**

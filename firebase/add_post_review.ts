@@ -19,6 +19,8 @@ export const addReviewPost = async (title: string, content: string, rating: stri
       authorId,
       authorName,
       createdAt: serverTimestamp(),
+      helpfulCount: 0,
+      helpfulBy: [],
     });
     console.log("Document written with ID: ", docRef.id);
     return docRef.id;

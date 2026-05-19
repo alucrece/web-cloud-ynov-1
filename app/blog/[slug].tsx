@@ -6,12 +6,40 @@ import { Post } from '../../firebase/get_post_data';
 import { CommonStyles, Colors } from '../../constants/Theme';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'react-native';
+import { markReviewAsHelpful } from '../../firebase/update_helpful';
+import { auth } from '../../firebaseConfig';
 
 export default function ReviewDetailPage() {
   const { slug } = useLocalSearchParams();
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const handleHelpful = async () => {
+    if (!post || !auth.currentUser) return;
+    try {
+
+      const wasAdded = await markReviewAsHelpful(
+        post.id,
+        auth.currentUser.uid
+      );
+
+      setPost({
+        ...post,
+        helpfulCount: wasAdded
+          ? (post.helpfulCount || 0) + 1
+          : (post.helpfulCount || 0) - 1,
+
+        helpfulBy: wasAdded
+          ? [...(post.helpfulBy || []), auth.currentUser.uid]
+          : (post.helpfulBy || []).filter(
+              id => id !== auth.currentUser?.uid
+            ),
+      });
+    } catch (error) {
+      console.error("Error marking review as helpful:", error);
+    }
+  };
 
   useEffect(() => {
     if (slug) {
@@ -61,11 +89,11 @@ export default function ReviewDetailPage() {
         <Text style={styles.author}>Par {post.authorName}</Text>
         <View style={styles.divider} />
         <Text style={styles.content}>{post.content}</Text>
-        <Pressable style={styles.helpfulButton}>
-        <Text style={styles.helpfulText}>
-          👍 Avis pertinent ({post.helpfulCount || 0})
-        </Text>
-      </Pressable>
+        <Pressable style={styles.helpfulButton} onPress={handleHelpful}>
+          <Text style={styles.helpfulText}>
+            👍 Avis pertinent ({post.helpfulCount || 0})
+          </Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
