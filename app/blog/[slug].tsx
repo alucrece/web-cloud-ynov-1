@@ -5,8 +5,9 @@ import { getPostById } from '../../firebase/get_single_post';
 import { Post } from '../../firebase/get_post_data';
 import { CommonStyles, Colors } from '../../constants/Theme';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'react-native';
 
-export default function BlogPostDetail() {
+export default function ReviewDetailPage() {
   const { slug } = useLocalSearchParams();
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
@@ -32,7 +33,7 @@ export default function BlogPostDetail() {
   if (!post) {
     return (
       <View style={CommonStyles.center}>
-        <Text style={styles.errorText}>Post introuvable.</Text>
+        <Text style={styles.errorText}>Critique introuvable.</Text>
         <Pressable style={[CommonStyles.button, CommonStyles.buttonPrimary]} onPress={() => router.back()}>
           <Text style={CommonStyles.buttonText}>Retour</Text>
         </Pressable>
@@ -48,13 +49,23 @@ export default function BlogPostDetail() {
       </Pressable>
 
       <View style={CommonStyles.card}>
+        <Image
+          source={{ uri: post.image }}
+          style={styles.coverImage}
+        />
         <Text style={styles.date}>
           {post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Date inconnue'}
         </Text>
         <Text style={CommonStyles.title}>{post.title}</Text>
+        <Text style={styles.rating}>⭐ {post.rating}/5</Text>
         <Text style={styles.author}>Par {post.authorName}</Text>
         <View style={styles.divider} />
         <Text style={styles.content}>{post.content}</Text>
+        <Pressable style={styles.helpfulButton}>
+        <Text style={styles.helpfulText}>
+          👍 Avis pertinent ({post.helpfulCount || 0})
+        </Text>
+      </Pressable>
       </View>
     </ScrollView>
   );
@@ -68,4 +79,8 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: Colors.gray, marginBottom: 20 },
   content: { fontSize: 16, color: Colors.text, lineHeight: 26 },
   errorText: { fontSize: 18, marginBottom: 20, color: Colors.danger },
+  coverImage: { width: '100%', height: 200, marginBottom: 20, borderRadius: 8 },
+  rating: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  helpfulButton: { marginTop: 30, backgroundColor: Colors.primary, padding: 12, borderRadius: 8, alignItems: 'center' },
+  helpfulText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });

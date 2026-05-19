@@ -1,10 +1,12 @@
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 import { addReviewPost } from '../../firebase/add_post_review';
 import { CommonStyles, Colors } from '../../constants/Theme';
+import * as ImagePicker from 'expo-image-picker';
+import { uploadFileAndGetURL } from '../../firebase/storage_upload_file';
 
 export default function AjouterPostPage() {
   const [title, setTitle] = useState('');
@@ -16,6 +18,32 @@ export default function AjouterPostPage() {
   const [rating, setRating] = useState('');
   const [image, setImage] = useState('');
   const numericRating = Number(rating);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled && result.assets[0].uri && user) {
+      setUploadingImage(true);
+      try {
+        const uri = result.assets[0].uri;
+        const fileName = `avatars/${user.uid}_${Date.now()}.jpg`;
+        const downloadURL = await uploadFileAndGetURL(uri, fileName);
+        
+        setImage(downloadURL);
+        Alert.alert('Succès', 'Image téléchargée avec succès !');
+      } catch (error: any) {
+        Alert.alert('Erreur', 'Impossible de télécharger l\'image : ' + error.message);
+      } finally {
+        setUploadingImage(false);
+      }
+    }
+  };
 
   if (numericRating < 0 || numericRating > 5) {
     Alert.alert('Erreur', 'La note doit être entre 0 et 5.');
@@ -107,12 +135,23 @@ export default function AjouterPostPage() {
         />
 
         <Text style={CommonStyles.label}>Affiche de l'oeuvre</Text>
-        <TextInput
-          style={CommonStyles.input}
-          placeholder="URL de l'image"
-          value={image}
-          onChangeText={setImage}
-        />
+        <Pressable
+          style={styles.imagePickerButton}
+          onPress={pickImage}
+          disabled={uploadingImage}
+        >
+          <Text style={styles.imagePickerText}>
+            {uploadingImage
+              ? 'Téléchargement...'
+              : 'Choisir une image'}
+          </Text>
+        </Pressable>
+        {image ? (
+          <Image
+            source={{ uri: image }}
+            style={styles.previewImage}
+          />
+        ) : null}
 
         <Text style={CommonStyles.label}>Note sur 5</Text>
         <TextInput
@@ -136,4 +175,7 @@ export default function AjouterPostPage() {
 
 const styles = StyleSheet.create({
   textArea: { minHeight: 150 },
+  previewImage: { width: '100%', height: 200, marginVertical: 10, borderRadius: 8 },
+  imagePickerButton: { backgroundColor: Colors.gray, padding: 10, borderRadius: 8, alignItems: 'center', marginBottom: 15 },
+  imagePickerText: { color: Colors.text, fontWeight: 'bold', fontSize: 16 },
 });

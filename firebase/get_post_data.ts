@@ -10,6 +10,7 @@ export interface Post {
   authorId: string;
   authorName: string;
   createdAt: any;
+  helpfulCount?: number; // Optional field for counting helpful votes
 }
 
 /**
