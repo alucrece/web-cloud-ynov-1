@@ -47,8 +47,24 @@ export default function ReviewDetailPage() {
   };
 
   const handleAddComment = async () => {
-    if (!commentText.trim() || !auth.currentUser || !post) return;
+    //if (!commentText.trim() || !auth.currentUser || !post) return;
+    console.log("Bouton envoyer cliqué");
+    console.log("Valeur actuelle :", commentText);
 
+  if (!commentText.trim()) {
+      console.log("Commentaire vide");
+      return;
+    }
+
+    if (!auth.currentUser) {
+      console.log("Utilisateur non connecté");
+      return;
+    }
+
+    if (!post) {
+      console.log("Post introuvable");
+      return;
+    }
     try {
       await addComment(
         post.id,
@@ -115,7 +131,7 @@ export default function ReviewDetailPage() {
           {post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Date inconnue'}
         </Text>
         <Text style={CommonStyles.title}>{post.title}</Text>
-        <Text style={styles.rating}>⭐ {post.rating}/5</Text>
+        <Text style={styles.rating}>{'⭐ '.repeat(post.rating)}</Text>
         <Text style={styles.author}>Par {post.authorName}</Text>
         <View style={styles.divider} />
         <Text style={styles.content}>{post.content}</Text>
@@ -130,7 +146,10 @@ export default function ReviewDetailPage() {
           style={styles.commentInput}
           placeholder="Ajouter un commentaire..."
           value={commentText}
-          onChangeText={setCommentText}
+          onChangeText={(text) => {
+            console.log(text);
+            setCommentText(text);
+          }}
         />
         <Pressable style={styles.commentButton} onPress={handleAddComment}>
           <Text style={styles.commentButtonText}> Envoyer </Text>
@@ -169,7 +188,7 @@ const styles = StyleSheet.create({
   commentInput: { borderWidth: 1, borderColor: Colors.gray, borderRadius: 8, padding: 10, marginBottom: 10 },
   commentButton: { backgroundColor: Colors.primary, padding: 12, borderRadius: 8, alignItems: 'center' },
   commentButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  commentCard: { backgroundColor: Colors.gray, padding: 15, borderRadius: 8, marginBottom: 15 },
+  commentCard: { backgroundColor: Colors.gray, padding: 15, borderRadius: 8, marginBottom: 15, marginTop: 15 },
   commentAuthor: { fontWeight: 'bold', marginBottom: 5 },
   commentContent: { color: Colors.text },
 });

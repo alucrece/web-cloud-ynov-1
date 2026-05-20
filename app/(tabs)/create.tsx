@@ -15,7 +15,7 @@ export default function AjouterPostPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const router = useRouter();
-  const [rating, setRating] = useState('');
+  const [rating, setRating] = useState('0');
   const [image, setImage] = useState('');
   const numericRating = Number(rating);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -86,7 +86,7 @@ export default function AjouterPostPage() {
       // Reset form
       setTitle('');
       setContent('');
-      
+      setRating('0');
       // Redirect to home
       console.log("Redirecting to home page...");
       router.replace('/');

@@ -38,7 +38,7 @@ export default function HomePage() {
       />
 
       <Text style={styles.postTitle}>{item.title}</Text>
-      <Text style={styles.rating}>⭐ {item.rating}/5</Text>
+      <Text style={styles.rating}>{'⭐ '.repeat(item.rating)}</Text>
       <Text style={styles.postAuthor}>Par {item.authorName}</Text>
       <Text style={styles.postContent} numberOfLines={3}>{item.content}</Text>
 

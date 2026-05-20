@@ -18,7 +18,7 @@ export const addComment = async (
     authorId,
     authorName,
     content,
-    createdAt: serverTimestamp(),
+    createAt: new Date(),
   });
 
 };

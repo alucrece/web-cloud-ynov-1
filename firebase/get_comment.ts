@@ -23,7 +23,7 @@ export const subscribeToComments = (
   const q = query(
     collection(db, 'comments'),
     where('reviewId', '==', reviewId),
-    orderBy('createdAt', 'desc')
+    //orderBy('createdAt', 'desc')
   );
 
   return onSnapshot(q, (snapshot) => {
