@@ -2,6 +2,8 @@ import {
   collection,
   addDoc,
   serverTimestamp,
+  increment, updateDoc,
+  doc,
 } from 'firebase/firestore';
 
 import { db } from '../firebaseConfig';
@@ -18,7 +20,10 @@ export const addComment = async (
     authorId,
     authorName,
     content,
-    createAt: new Date(),
+    createdAt: new Date(),
+  });
+  await updateDoc(doc(db, 'posts', reviewId), {
+    commentsCount: increment(1),
   });
 
 };

@@ -73,6 +73,10 @@ export default function ReviewDetailPage() {
         commentText
       );
 
+      setPost({
+        ...post,
+        commentsCount: (post.commentsCount || 0) + 1,
+      });
       setCommentText('');
 
     } catch (error) {
@@ -131,7 +135,16 @@ export default function ReviewDetailPage() {
           {post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Date inconnue'}
         </Text>
         <Text style={CommonStyles.title}>{post.title}</Text>
-        <Text style={styles.rating}>{'⭐ '.repeat(post.rating)}</Text>
+        <View style={styles.ratingContainer}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Ionicons
+                key={star}
+                name={star <= post.rating ? "star" : "star-outline"}
+                size={18}
+                color="#FFD700"
+              />
+            ))}
+          </View>
         <Text style={styles.author}>Par {post.authorName}</Text>
         <View style={styles.divider} />
         <Text style={styles.content}>{post.content}</Text>
@@ -140,7 +153,7 @@ export default function ReviewDetailPage() {
             👍 Avis pertinent ({post.helpfulCount || 0})
           </Text>
         </Pressable>
-        <Text style={styles.commentsTitle}> Commentaires </Text>
+        <Text style={styles.commentsTitle}> 💬 {post.commentsCount || 0} Commentaires </Text>
 
         <TextInput
           style={styles.commentInput}
@@ -191,4 +204,5 @@ const styles = StyleSheet.create({
   commentCard: { backgroundColor: Colors.gray, padding: 15, borderRadius: 8, marginBottom: 15, marginTop: 15 },
   commentAuthor: { fontWeight: 'bold', marginBottom: 5 },
   commentContent: { color: Colors.text },
+  ratingContainer: { flexDirection: 'row', marginBottom: 6, gap: 1, alignItems: 'center' },
 });

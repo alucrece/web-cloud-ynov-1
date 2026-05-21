@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { CommonStyles, Colors } from '../../constants/Theme';
 import { subscribeToPosts, Post } from '../../firebase/get_post_data';
 import { Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomePage() {
   const router = useRouter();
@@ -38,7 +39,16 @@ export default function HomePage() {
       />
 
       <Text style={styles.postTitle}>{item.title}</Text>
-      <Text style={styles.rating}>{'⭐ '.repeat(item.rating)}</Text>
+      <View style={styles.ratingContainer}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Ionicons
+            key={star}
+            name={star <= item.rating ? "star" : "star-outline"}
+            size={18}
+            color="#FFD700"
+          />
+        ))}
+      </View>
       <Text style={styles.postAuthor}>Par {item.authorName}</Text>
       <Text style={styles.postContent} numberOfLines={3}>{item.content}</Text>
 
@@ -87,8 +97,9 @@ const styles = StyleSheet.create({
   header: { marginBottom: 20 },
   loginPrompt: { backgroundColor: Colors.gray, padding: 15, borderRadius: 12, marginBottom: 20 },
   loginPromptText: { marginBottom: 10, color: Colors.text, textAlign: 'center' },
-  postImage: { width: '100%', height: 200, marginBottom: 10, borderRadius: 8 },
+  postImage: { width: '100%', height: 200, marginBottom: 10, borderRadius: 8, backgroundColor: Colors.gray, resizeMode: 'cover' },
   rating: { fontSize: 14, fontWeight: 'bold', color: Colors.primary, marginBottom: 6 },
+  ratingContainer: { flexDirection: 'row', marginBottom: 6, gap: 1, alignItems: 'center' },
   postTitle: { fontSize: 20, fontWeight: 'bold', color: Colors.text, marginBottom: 4 },
   postAuthor: { fontSize: 12, color: Colors.textSecondary, marginBottom: 12, textTransform: 'uppercase' },
   postContent: { fontSize: 15, color: '#444', lineHeight: 22, marginBottom: 15 },
