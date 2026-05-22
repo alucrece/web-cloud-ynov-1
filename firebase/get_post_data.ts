@@ -5,9 +5,14 @@ export interface Post {
   id: string;
   title: string;
   content: string;
+  rating: number;
+  image: string;
   authorId: string;
   authorName: string;
   createdAt: any;
+  helpfulCount?: number; // Optional field for counting helpful votes
+  helpfulBy?: string[]; // Optional field for tracking which users marked as helpful
+  commentsCount?: number; // Optional field for counting comments
 }
 
 /**
